@@ -2,8 +2,8 @@ import os
 import time
 import sounddevice as sd
 from scipy.io.wavfile import write
-from audio_processing import load_audio, generate_spectrogram, find_peaks
-from fingerprinting import generate_fingerprints
+from backend.audio_processing import load_audio, generate_spectrogram, find_peaks
+from backend.fingerprinting import generate_fingerprints
 
 AUDIO_FOLDER = "audio_files"
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
