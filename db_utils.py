@@ -1,6 +1,7 @@
 import psycopg2
+import os 
 
-connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+connection_string = os.getenv("DATABASE_URL")
 
 def insert_song(title, artist):
     with psycopg2.connect(connection_string) as conn:
