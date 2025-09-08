@@ -17,11 +17,12 @@ THRESHOLD = 10  # matching threshold
 
 @app.post("/match")
 async def match_audio(file: UploadFile = File(...)):
-    if not file.filename.endswith(".wav"):
-        raise HTTPException(status_code=400, detail="Only WAV files are accepted.")
+    if not (file.filename.endswith(".wav") or file.filename.endswith(".mp3")):
+        raise HTTPException(status_code=400, detail="Only WAV and MP3 files are accepted.")
 
     # Save uploaded file locally
-    filename = f"upload_{int(time.time())}.wav"
+    ext = os.path.splitext(file.filename)[1]
+    filename = f"upload_{int(time.time())}{ext}"
     file_path = os.path.join(AUDIO_FOLDER, filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -58,7 +59,7 @@ async def match_audio(file: UploadFile = File(...)):
             "message": "No suitable match found. Please try a longer or clearer audio sample."
         }
     
-    # Optionally delete uploaded file after processing
+    # delete uploaded file after processing
     os.remove(file_path)
 
     return JSONResponse(content=result)
@@ -86,6 +87,6 @@ async def add_song(
     insert_fingerprints(song_id, fingerprints)
     
     # Optionally remove temp file
-    # os.remove(temp_path)
+    os.remove(temp_path)
     
     return {"status": "success", "song_id": song_id, "num_fingerprints": len(fingerprints)}
