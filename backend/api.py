@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.responses import JSONResponse
 import shutil
 import os
@@ -6,7 +6,7 @@ import time
 
 from audio_processing import load_audio, generate_spectrogram, find_peaks
 from fingerprinting import generate_fingerprints
-from db_utils import match_fingerprints_time_coherent, get_song_info
+from db_utils import match_fingerprints_time_coherent, get_song_info, insert_song, insert_fingerprints
 
 app = FastAPI()
 
@@ -62,3 +62,30 @@ async def match_audio(file: UploadFile = File(...)):
     os.remove(file_path)
 
     return JSONResponse(content=result)
+
+@app.post("/add-song")
+async def add_song(
+    file: UploadFile, 
+    title: str = Form(...), 
+    artist: str = Form(...)
+):
+    # Save file temporarily
+    contents = await file.read()
+    temp_path = f"/tmp/{file.filename}"
+    with open(temp_path, 'wb') as f:
+        f.write(contents)
+    
+    # Fingerprinting
+    y, sr = load_audio(temp_path)
+    S_db = generate_spectrogram(y, sr)
+    peaks = find_peaks(S_db)
+    fingerprints = generate_fingerprints(peaks)
+    
+    # Insert song & fingerprints
+    song_id = insert_song(title, artist)
+    insert_fingerprints(song_id, fingerprints)
+    
+    # Optionally remove temp file
+    # os.remove(temp_path)
+    
+    return {"status": "success", "song_id": song_id, "num_fingerprints": len(fingerprints)}
