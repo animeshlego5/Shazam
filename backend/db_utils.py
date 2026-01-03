@@ -1,7 +1,7 @@
 import psycopg2
 import os 
 
-connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+connection_string = os.getenv("DATABASE_URL")
 
 def insert_song(title, artist):
     with psycopg2.connect(connection_string) as conn:
@@ -42,7 +42,7 @@ def match_fingerprints(query_fingerprints):
     import psycopg2
     from collections import defaultdict
 
-    connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+    # Removed hardcoded connection_string for security
     # Extract only the hash values
     hash_values = [str(h) for h, t in query_fingerprints]
     results = defaultdict(int)
@@ -72,7 +72,7 @@ def match_fingerprints(query_fingerprints):
     return results
 def get_song_info(song_id):
     import psycopg2
-    connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+    # Removed hardcoded connection_string for security
     with psycopg2.connect(connection_string) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT title, artist FROM songs WHERE song_id = %s;", (int(song_id),))
@@ -86,7 +86,7 @@ def match_fingerprints_time_coherent(query_fingerprints):
     import psycopg2
     from collections import defaultdict
 
-    connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
+    # Removed hardcoded connection_string for security
     # Convert to dict for faster lookup
     query_hash_to_time = {str(h): int(t) for h, t in query_fingerprints}
     results = defaultdict(lambda: defaultdict(int))  # {song_id: {delta_t: count}}
