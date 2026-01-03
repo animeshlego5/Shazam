@@ -1,7 +1,7 @@
 import psycopg2
 import os 
 
-connection_string = os.getenv("DATABASE_URL")
+connection_string = "postgresql://postgres.nesbwlqukdinudtwpbtu:Faltu%40993@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
 
 def insert_song(title, artist):
     with psycopg2.connect(connection_string) as conn:
@@ -15,13 +15,16 @@ def insert_song(title, artist):
     return song_id
 
 def insert_fingerprints(song_id, fingerprints):
+    from psycopg2.extras import execute_values
     with psycopg2.connect(connection_string) as conn:
         with conn.cursor() as cur:
-            for hash_val, time_offset in fingerprints:
-                cur.execute(
-                    "INSERT INTO fingerprints (song_id, hash, time_offset) VALUES (%s, %s, %s);",
-                    (int(song_id), str(hash_val), int(time_offset))
-                )
+            # Prepare list of tuples for batch insert
+            values = [(int(song_id), str(h), int(t)) for h, t in fingerprints]
+            execute_values(
+                cur,
+                "INSERT INTO fingerprints (song_id, hash, time_offset) VALUES %s",
+                values
+            )
         conn.commit()
     print(f"✅ Inserted {len(fingerprints)} fingerprints for Song ID {song_id}")
 

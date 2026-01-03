@@ -72,7 +72,7 @@ async def add_song(
 ):
     # Save file temporarily
     contents = await file.read()
-    temp_path = f"/tmp/{file.filename}"
+    temp_path = os.path.join(AUDIO_FOLDER, f"temp_{file.filename}")
     with open(temp_path, 'wb') as f:
         f.write(contents)
     
